@@ -1,0 +1,12 @@
+<h1>{{ person.face }}</h1>
+<img src="data:image/png;base64,{{ img_str }}" alt="Cannot load image" >
+<ul>
+  {% for p in person.emotion_detail %}
+    <li> 
+      <div>
+        {{ p.timestamp }}
+        <img src="data:image/png;base64,{{ p.emotion }}" alt="Cannot load image" >
+      </div>  
+    </li>
+  {% endfor %}
+</ul>

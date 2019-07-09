@@ -1,0 +1,25 @@
+version: "3"
+services:
+  db:
+    image: "postgres:11"
+    container_name: "my_postgres"
+    ports:
+      - "54320:5432"
+    volumes:
+      - my_dbdata:/var/lib/postgresql/data
+    networks:
+      - ml2_face_emoji_swap_default
+  # web:
+  #   build: .
+  #   command: python manage.py runserver 0.0.0.0:3000
+  #   volumes:
+  #     - .:/code
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - db
+volumes:
+  my_dbdata:
+networks:
+  ml2_face_emoji_swap_default:
+    external: true
