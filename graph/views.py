@@ -25,7 +25,7 @@ def detail(request, face):
     EMOTIONS = ['angry', 'disgusted', 'fearful',
                 'happy', 'sad', 'surprised', 'neutral']
     person = get_object_or_404(TestPerson, face=face)
-
+    print(person.face)
     # load face image by convert array to image
     image = person.face_image
     image = np.asarray(image, dtype=np.float32)
@@ -37,21 +37,37 @@ def detail(request, face):
 
     person.emotion_detail = [json.loads(x) for x in person.emotion_detail]
 
-    # improve more performance
-    for idx, i in enumerate(person.emotion_detail):
-        y_pos = np.arange(len(EMOTIONS))
-        level = i['emotion'][0]
-        plt.rcdefaults()
-        plt.barh(y_pos, level, align='center', alpha=0.5)
-        plt.yticks(y_pos, EMOTIONS)
-        plt.xlabel('Level')
-        axes = plt.gca()
-        axes.set_xlim([0, 1])
+    times = []
+    angry = []
+    disgusted = []
+    fearful = []
+    happy = []
+    sad = []
+    surprised = []
+    neutral = []
 
-        figfile = BytesIO()
-        plt.savefig(figfile, format='png')
-        figdata_png = base64.b64encode(figfile.getvalue()).decode()
-        person.emotion_detail[idx]['emotion'] = figdata_png
-        plt.clf()
+    for i in person.emotion_detail:
+        times.append(i['timestamp'])
+        angry.append(i['emotion'][0][0])
+        disgusted.append(i['emotion'][0][1])
+        fearful.append(i['emotion'][0][2])
+        happy.append(i['emotion'][0][3])
+        sad.append(i['emotion'][0][4])
+        surprised.append(i['emotion'][0][5])
+        neutral.append(i['emotion'][0][6])
+    plt.plot(times, angry)
+    plt.plot(times, disgusted)
+    plt.plot(times, fearful)
+    plt.plot(times, happy)
+    plt.plot(times, sad)
+    plt.plot(times, surprised)
+    plt.plot(times, neutral)
+    plt.xticks(rotation='vertical', fontsize=7)
+    plt.legend(EMOTIONS)
+    plt.tight_layout()
+    figfile = BytesIO()
+    plt.savefig(figfile, format='png')
+    figdata_png = base64.b64encode(figfile.getvalue()).decode()
+    plt.clf()
 
-    return render(request, 'graph/detail.html', {'person': person, 'img_str': img_str})
+    return render(request, 'graph/detail.html', {'person': person, 'img_str': img_str, 'graph': figdata_png})
