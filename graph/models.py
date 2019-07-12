@@ -9,10 +9,14 @@ class Person(models.Model):
     def __str__(self):
         return self.face
 
+def array_field_default():
+    return {'a': 0}
+
 class TestPerson(models.Model):
     face = models.CharField(max_length=200)
     emotion_detail = ArrayField(models.TextField())
     face_image = ArrayField(models.TextField())
+    face_encoding = ArrayField(models.TextField(), default=array_field_default)
 
     class Meta:
         managed = True
