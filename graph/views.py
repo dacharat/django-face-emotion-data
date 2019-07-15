@@ -21,11 +21,24 @@ def index(request):
     }
     return render(request, 'graph/index.html', context)
 
+def graph_plot(EMOTIONS, times, emotion):
+    for e in emotion:
+        plt.plot(times, e)
+    plt.xticks(rotation='vertical', fontsize=7)
+    plt.ylim(0,1)
+    plt.legend(EMOTIONS)
+    plt.tight_layout()
+    figfile = BytesIO()
+    plt.savefig(figfile, format='png')
+    figdata_png = base64.b64encode(figfile.getvalue()).decode()
+    plt.clf()
+    return figdata_png
+
+
 def detail(request, face):
     EMOTIONS = ['angry', 'disgusted', 'fearful',
                 'happy', 'sad', 'surprised', 'neutral']
     person = get_object_or_404(TestPerson, face=face)
-    print(person.face)
     # load face image by convert array to image
     image = person.face_image
     image = np.asarray(image, dtype=np.float32)
@@ -37,14 +50,7 @@ def detail(request, face):
 
     person.emotion_detail = [json.loads(x) for x in person.emotion_detail]
 
-    times = []
-    angry = []
-    disgusted = []
-    fearful = []
-    happy = []
-    sad = []
-    surprised = []
-    neutral = []
+    times, angry, disgusted, fearful, happy, sad, surprised, neutral = ([] for i in range(8))
 
     for i in person.emotion_detail:
         times.append(i['timestamp'])
@@ -55,19 +61,45 @@ def detail(request, face):
         sad.append(i['emotion'][4])
         surprised.append(i['emotion'][5])
         neutral.append(i['emotion'][6])
-    plt.plot(times, angry)
-    plt.plot(times, disgusted)
-    plt.plot(times, fearful)
-    plt.plot(times, happy)
-    plt.plot(times, sad)
-    plt.plot(times, surprised)
-    plt.plot(times, neutral)
-    plt.xticks(rotation='vertical', fontsize=7)
-    plt.legend(EMOTIONS)
-    plt.tight_layout()
-    figfile = BytesIO()
-    plt.savefig(figfile, format='png')
-    figdata_png = base64.b64encode(figfile.getvalue()).decode()
-    plt.clf()
 
-    return render(request, 'graph/detail.html', {'person': person, 'img_str': img_str, 'graph': figdata_png})
+    summary_graph = graph_plot(EMOTIONS, times, [angry, disgusted, fearful, happy, sad, surprised, neutral])
+
+    return render(request, 'graph/detail.html', {
+        'person': person, 
+        'img_str': img_str, 
+        'graphs': summary_graph, 
+        'emotion': ['summary'] + EMOTIONS,
+        'path': 'summary'
+        })
+
+def detail_emotion(request, face, emotion):
+    EMOTIONS = ['angry', 'disgusted', 'fearful',
+                'happy', 'sad', 'surprised', 'neutral']
+    emotions = enumerate(EMOTIONS)
+    person = get_object_or_404(TestPerson, face=face)
+    image = person.face_image
+    image = np.asarray(image, dtype=np.float32)
+    img = Image.fromarray(image)
+    img = img.convert('RGB')
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    img_str = base64.b64encode(buffer.getvalue()).decode()
+
+    person.emotion_detail = [json.loads(x) for x in person.emotion_detail]
+
+    times, emotion_arr = ([] for i in range(2))
+    index = [idx for idx, e in emotions if e == emotion][0]
+
+    for i in person.emotion_detail:
+        times.append(i['timestamp'])
+        emotion_arr.append(i['emotion'][index])
+
+    emotion_arr_graph = graph_plot([EMOTIONS[index]], times, [emotion_arr])
+
+    return render(request, 'graph/detail.html', {
+        'person': person, 
+        'img_str': img_str, 
+        'graphs': emotion_arr_graph, 
+        'emotion': ['summary'] + EMOTIONS,
+        'path': emotion
+        })

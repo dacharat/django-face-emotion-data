@@ -1,18 +1,49 @@
 {% load static %}
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="{% static 'css/detail.css' %}">
-<h1>{{ person.face }}</h1>
-<div>
-  <img src="data:image/png;base64,{{ img_str }}" alt="Cannot load image" ><br>
-  <img class='graph' src="data:image/png;base64,{{ graph }}" alt="Cannot load image" >
+
+<a href='/' >Home</a>
+
+<div class="container">
+    <h1>{{ person.face }}</h1>
+    <img src="data:image/png;base64,{{ img_str }}" alt="Cannot load image" ><br>
+  <hr>
+  <div class="row">
+    <div class="col-md-2 mb-3">
+        <ul class="nav nav-pills flex-column" id="myTab" role="tablist">
+          {% for e in emotion %}
+          {% if e == path %}
+            <li class="nav-item">
+              <a class="nav-link active" id="{{e}}-tab" data-toggle="tab" href="/{{person.face}}/{{e}}" role="tab" aria-controls="{{e}}" aria-selected="true">{{e}}</a>
+            </li>
+          {% elif e == 'summary' %}
+            <li class="nav-item">
+              <a class="nav-link" id="{{e}}-tab" data-toggle="tab" href="/{{person.face}}" role="tab" aria-controls="{{e}}" aria-selected="true">{{e}}</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" id="{{e}}-tab" data-toggle="tab" href="/{{person.face}}/{{e}}" role="tab" aria-controls="{{e}}" aria-selected="true">{{ e }}</a>
+            </li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-10">
+      <div class="tab-content" id="myTabContent">
+        {% for e in emotion %}
+          {% if e == path %}
+            <div class="tab-pane fade show active" id="{{e}}" role="tabpanel" aria-labelledby="{{e}}-tab">
+              <h2>{{e}}</h2>
+              <img src="data:image/png;base64,{{ graphs }}" alt="Cannot load image" ><br>
+            </div>
+          {% else %}
+            <div class="tab-pane fade" id="{{e}}" role="tabpanel" aria-labelledby="{{e}}-tab">
+              <h2>{{e}}</h2>
+              <img src="data:image/png;base64,{{ graphs }}" alt="Cannot load image" ><br>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
-<ul>
-  {% for p in person.emotion_detail %}
-    <li> 
-      <div>
-        {{ p.timestamp }}
-        <img src="data:image/png;base64,{{ p.emotion }}" alt="Cannot load image" >
-      </div>  
-    </li>
-  {% endfor %}
-</ul>
