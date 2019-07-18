@@ -34,13 +34,13 @@
           {% if e == path %}
             <div class="tab-pane fade show active" id="{{e}}" role="tabpanel" aria-labelledby="{{e}}-tab">
               <h2>{{e}}</h2>
-              <img src="data:image/png;base64,{{ graphs }}" alt="Cannot load image" ><br>
+              {% include "graph/graph.html" with labels=labels data=data color=color emotions=emotions %}
             </div>
-          {% else %}
+          {% comment %} {% else %}
             <div class="tab-pane fade" id="{{e}}" role="tabpanel" aria-labelledby="{{e}}-tab">
               <h2>{{e}}</h2>
-              <img src="data:image/png;base64,{{ graphs }}" alt="Cannot load image" ><br>
-            </div>
+              {% include "graph/graph.html" with labels=labels data=data color=color emotions=emotions %}
+            </div> {% endcomment %}
           {% endif %}
         {% endfor %}
       </div>
