@@ -25,8 +25,8 @@ SECRET_KEY = ')!k(h60-sjrs27_=1(6&9wv!@&qp#qoldc)&)9$u^gm!s&ui6s'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240000  # higher than the count of fields
 
 # Application definition
 
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graph.apps.GraphConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

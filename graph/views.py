@@ -6,23 +6,52 @@ import json
 import numpy as np
 from PIL import Image
 import base64
-from io import StringIO, BytesIO
-import matplotlib as mpl
-mpl.use('tkagg')
-import matplotlib.pyplot as plt
+from io import BytesIO
+# import matplotlib as mpl
+# mpl.use('tkagg')
+# import matplotlib.pyplot as plt
 
 from .models import Person, TestPerson
-# from graph.ml2_face_emoji_swap.database import Database
+from .database import Database
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 COLORS = ['rgb(255, 34, 0)', 'rgb(247, 5, 255)',
             'rgb(243, 193, 245)', 'rgb(152, 255, 92)', 'rgb(164, 166, 162)', 'rgb(103, 240, 215)', 'rgb(2, 196, 15)']
 EMOTIONS = ['angry', 'disgusted', 'fearful',
             'happy', 'sad', 'surprised', 'neutral']
 
-def get_data(request, face, query):
-    data = {"face": "Jack"}
 
-    return JsonResponse(data)
+class FaceView(APIView):
+    def get(self, request):
+        action = request.query_params.get('query')
+        db = Database()
+        switcher = {
+            'get_number_of_rows': db.get_number_of_rows(),
+            'get_face_encoding': db.get_face_encoding(),
+            'get_all_face': db.get_all_face()
+        }
+        res = switcher.get(action, "No request action")
+        db.close()
+        return Response(res)
+    
+    def post(self, request):
+        db = Database()
+        data = request.data
+        db.insert(data['face'], data['emotion_detail'],
+                  data['face_image'], data['face_encoding'])
+        db.close()
+        return Response("Success")
+
+    def put(self, request):
+        db = Database()
+        data = request.data
+        if data['action'] == 'change_face_name':
+            db.change_face_name(data['face'], data['newFaceName'])
+        elif data['action'] == 'update':
+            db.update(data['face'], data['emotion_detail'])
+        db.close()
+        return Response("Success")
 
 # Create your views here.
 def index(request):
@@ -31,19 +60,6 @@ def index(request):
         'latest_person_list': latest_person_list,
     }
     return render(request, 'graph/index.html', context)
-
-# def graph_plot(EMOTIONS, times, emotion):
-#     for e in emotion:
-#         plt.plot(times, e)
-#     plt.xticks(rotation='vertical', fontsize=7)
-#     plt.ylim(0,1)
-#     plt.legend(EMOTIONS)
-#     plt.tight_layout()
-#     figfile = BytesIO()
-#     plt.savefig(figfile, format='png')
-#     figdata_png = base64.b64encode(figfile.getvalue()).decode()
-#     plt.clf()
-#     return figdata_png
 
 def detail(request, face):
     person = get_object_or_404(TestPerson, face=face)
@@ -104,12 +120,10 @@ def detail_emotion(request, face, emotion):
         times.append(i['timestamp'])
         emotion_arr.append(i['emotion'][index])
     color = COLORS[index]
-    # emotion_arr_graph = graph_plot([EMOTIONS[index]], times, [emotion_arr])
 
     return render(request, 'graph/detail.html', {
         'person': person, 
         'img_str': img_str, 
-        # 'graphs': emotion_arr_graph, 
         'emotion': ['summary'] + EMOTIONS,
         'path': emotion,
         'labels': times,
