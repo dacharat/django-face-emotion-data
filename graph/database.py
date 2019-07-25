@@ -5,8 +5,8 @@ import json
 class Database:
   def __init__(self):
     self.conn = psycopg2.connect(
-        host='localhost',
-        port=54320,
+        host='my_postgres',
+        port=5432,
         dbname='my_face_data',
         user='postgres',
     )

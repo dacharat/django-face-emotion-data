@@ -6,20 +6,17 @@ services:
     ports:
       - "54320:5432"
     volumes:
-      - my_dbdata:/var/lib/postgresql/data
-    networks:
-      - ml2_face_emoji_swap_default
-  # web:
-  #   build: .
-  #   command: python manage.py runserver 0.0.0.0:3000
-  #   volumes:
-  #     - .:/code
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - db
+      - ~/dev/py3_keras/django-face-emotion-data/data:/var/lib/postgresql/data
+  web:
+    build: .
+    restart: on-failure
+    container_name: "django_web"
+    volumes:
+      - .:/code
+    ports:
+      - "3000:3000"
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python manage.py runserver 0.0.0.0:3000'
+    depends_on:
+      - db
 volumes:
   my_dbdata:
-networks:
-  ml2_face_emoji_swap_default:
-    external: true
