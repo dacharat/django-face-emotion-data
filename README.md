@@ -4,6 +4,10 @@
 - run `docker-compose up -d` to start PostgreSQL database.
 - run `docker exec -it my_postgres psql -U postgres` to open shell of PostgreSQL.
 
+#### If you don't have Docker Compose
+- Use `docker run -d -p 54320:5432 --volume ~/dev/py3_keras/django-face-emotion-data/data:/var/lib/postgresql/data --name my_postgres postgres:11` to create PostgreSQL container.
+
+
 ## In PostgreSQL shell
 - `\l` to see list of database
 - `\c my_face_data` to use database name `my_face_data`(databasee for this web)

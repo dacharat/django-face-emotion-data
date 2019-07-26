@@ -9,7 +9,7 @@ services:
       - ~/dev/py3_keras/django-face-emotion-data/data:/var/lib/postgresql/data
   web:
     build: .
-    restart: on-failure
+    restart: always
     container_name: "django_web"
     volumes:
       - .:/code

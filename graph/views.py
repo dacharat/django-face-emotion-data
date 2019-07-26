@@ -7,9 +7,6 @@ import numpy as np
 from PIL import Image
 import base64
 from io import BytesIO
-# import matplotlib as mpl
-# mpl.use('tkagg')
-# import matplotlib.pyplot as plt
 
 from .models import Person, TestPerson
 from .database import Database
